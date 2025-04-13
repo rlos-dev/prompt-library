@@ -59,7 +59,6 @@ export class DatabaseRepository implements OnModuleInit, OnModuleDestroy {
     }
 
     async runAsync(sql: string, params: unknown[] = []): Promise<ApiResult<RunResult>> {
-        // Using the context of 'this' to interact with repository methods from within inner callback
         const db = await this.ensureDbReady();
         return new Promise((resolve) => {
             db.run(sql, params, function (this: RunResult, err) {

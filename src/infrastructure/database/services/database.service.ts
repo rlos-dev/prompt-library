@@ -1,6 +1,6 @@
 import path from 'path';
 
-import { Injectable, Scope, Inject, forwardRef } from '@nestjs/common';
+import { Injectable, Scope, Inject, forwardRef, OnModuleInit } from '@nestjs/common';
 import fs from 'fs-extra';
 import { RunResult } from 'sqlite3';
 
@@ -12,12 +12,17 @@ import { LoggerService } from '../../logger/services/logger.service';
 import { DatabaseRepository } from '../repositories/database.repository';
 
 @Injectable({ scope: Scope.DEFAULT })
-export class DatabaseService {
+export class DatabaseService implements OnModuleInit {
     constructor(
         private readonly repository: DatabaseRepository,
         @Inject(forwardRef(() => LoggerService)) private readonly loggerService: LoggerService,
         @Inject(forwardRef(() => ErrorService)) private readonly errorService: ErrorService
     ) {}
+
+    async onModuleInit(): Promise<void> {
+        this.loggerService.debug('DatabaseService onModuleInit: Initializing database schema...');
+        await this.initDatabase();
+    }
 
     async initDatabase(): Promise<ApiResult<void>> {
         try {
@@ -30,6 +35,8 @@ export class DatabaseService {
                 const result = await this.repository.runAsync(table);
 
                 if (!result.success) {
+                    this.loggerService.error(`Failed to create table: ${result.error}`);
+                    this.loggerService.debug(`Failing SQL: ${table}`);
                     return Result.failure(result.error || 'Failed to create table');
                 }
             }
