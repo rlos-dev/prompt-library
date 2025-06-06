@@ -119,7 +119,7 @@ export class DocumentationService {
             title: metadata.title || 'Untitled',
             primary_category: primaryCategory,
             description: metadata.one_line_description || 'No description',
-            path: `${promptDir}/${appConfig.VIEW_FILE_NAME}`,
+            path: `${appConfig.PROMPTS_DIR}/${promptDir}/${appConfig.VIEW_FILE_NAME}`,
             subcategories: metadata.subcategories || []
         });
         this.loggerService.debug(`Added prompt ${metadata.title} to category: ${primaryCategory}`);
